@@ -658,6 +658,7 @@
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="8" />
                                 <RowDefinition Height="100" />
+                                <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
 
                             <!-- 进度文字 -->
@@ -712,6 +713,43 @@
                           IsHitTestVisible="False" />
                                 </Grid>
                             </Border>
+
+                            <!-- 并行视频索引的独立进度卡片：一路在跑视频一张卡，完成即消失 -->
+                            <ItemsControl Grid.Row="3"
+                          ItemsSource="{Binding VideoIndexJobs}"
+                          Margin="0,8,0,0">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,3">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="140" />
+                                                <ColumnDefinition Width="48" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0"
+                               Text="{Binding FileName}"
+                               FontSize="12"
+                               Foreground="#555555"
+                               TextTrimming="CharacterEllipsis"
+                               VerticalAlignment="Center" />
+                                            <ProgressBar Grid.Column="1"
+                               Value="{Binding Percent}"
+                               Minimum="0"
+                               Maximum="100"
+                               Height="8"
+                               VerticalAlignment="Center"
+                               Margin="8,0" />
+                                            <TextBlock Grid.Column="2"
+                               Text="{Binding PercentText}"
+                               FontSize="12"
+                               FontWeight="SemiBold"
+                               Foreground="#007ACC"
+                               HorizontalAlignment="Right"
+                               VerticalAlignment="Center" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
                         </Grid>
 
                         <!-- 速度信息 -->

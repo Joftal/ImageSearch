@@ -43,6 +43,9 @@ public sealed class VideoIndexService : Disposable
 
     public event EventHandler? IndexUpdated;
 
+    /// <summary>单个视频处理结束（成功/中止/失败均触发，此后该文件不再产生进度事件），供 UI 移除其进度卡片</summary>
+    public event EventHandler<string>? FileCompleted;
+
     private async Task StartWriteTaskAsync(CancellationToken cancellationToken)
     {
         try
@@ -260,7 +263,8 @@ public sealed class VideoIndexService : Disposable
                                 Speed = currentSeconds / Math.Max(sw.Elapsed.TotalSeconds, 0.001),
                                 ThroughputMB = currentBytes / 1048576.0 / Math.Max(sw.Elapsed.TotalSeconds, 0.001),
                                 ProcessedFiles = Math.Min((int)currentSeconds, totalProgress),
-                                TotalFiles = totalProgress
+                                TotalFiles = totalProgress,
+                                FileProgressFraction = duration > 0 ? Math.Min(frame.Timestamp / duration, 1) : 0
                             });
 
                             if (pendingBatch.Count >= batchSize)
@@ -347,6 +351,9 @@ public sealed class VideoIndexService : Disposable
                             try { bitmap.Dispose(); } catch { }
                         }
                     }
+
+                    // 无论成功/中止/失败，该文件不再产生进度事件，通知 UI 移除其进度卡片
+                    FileCompleted?.Invoke(this, file);
                 }
             });
         }, CancellationToken.None).ContinueWith(t =>
@@ -485,6 +492,7 @@ public sealed class VideoIndexService : Disposable
             ProgressChanged = null;
             IndexCompleted = null;
             IndexUpdated = null;
+            FileCompleted = null;
 
             // 清理数据
             VideoIndex.Clear();

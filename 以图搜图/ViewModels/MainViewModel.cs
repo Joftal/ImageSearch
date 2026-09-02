@@ -146,6 +146,10 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private ObservableCollection<double> speedHistory = new();
 
+    /// <summary>并行视频索引各自的进度卡片：一路在跑视频一张卡，完成后消失</summary>
+    [ObservableProperty]
+    private ObservableCollection<VideoIndexJob> videoIndexJobs = new();
+
     [ObservableProperty]
     private bool isSearchEnabled;
 
@@ -182,6 +186,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _videoIndexService.ProgressChanged += OnIndexProgressChanged;
         _videoIndexService.IndexCompleted += OnIndexCompleted;
         _videoIndexService.IndexUpdated += OnIndexUpdated;
+        _videoIndexService.FileCompleted += OnVideoFileCompleted;
 
         // 异步初始化性能监测，避免阻塞 UI 线程
         _ = Task.Run(InitializePerformanceMonitoring);
@@ -1182,7 +1187,29 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
             if (e.ProcessedFiles > 0)
             {
-                ProcessingFilename = "正在处理：" + e.Filename;
+                // 并行视频：每路一张独立进度卡片，单个"正在处理"行改为聚合文案，不再轮流被各路覆盖
+                if (!string.IsNullOrEmpty(e.Filename) && IsVideoFile(e.Filename))
+                {
+                    var job = VideoIndexJobs.FirstOrDefault(j => j.FileName == e.Filename);
+                    if (job == null)
+                    {
+                        job = new VideoIndexJob { FileName = e.Filename };
+                        VideoIndexJobs.Add(job);
+                    }
+
+                    if (e.FileProgressFraction is { } frac)
+                    {
+                        job.Percent = Math.Min(frac * 100, 100);
+                        job.PercentText = $"{frac:P0}";
+                    }
+
+                    ProcessingFilename = $"并行处理 {VideoIndexJobs.Count} 个视频（各视频进度见下方卡片）";
+                }
+                else
+                {
+                    ProcessingFilename = "正在处理：" + e.Filename;
+                }
+
                 IndexSpeed = $"索引速度: {e.Speed:F0} items/s ({e.ThroughputMB:F2}MB/s)";
                 IndexSpeedText = $"{e.Speed:F0} items/s";
                 IndexThroughputText = $"{e.ThroughputMB:F2} MB/s";
@@ -1241,11 +1268,30 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private void OnIndexUpdated(object? sender, EventArgs args) =>
         Application.Current.Dispatcher.Invoke(UpdateIndexCount);
 
+    private void OnVideoFileCompleted(object? sender, string file)
+    {
+        Application.Current.Dispatcher.BeginInvoke(() =>
+        {
+            var job = VideoIndexJobs.FirstOrDefault(j => j.FileName == file);
+            if (job != null)
+            {
+                // 完成卡片先闪一下 100% 再消失太复杂，直接移除；剩余卡片自动靠拢
+                VideoIndexJobs.Remove(job);
+            }
+        });
+    }
+
     private void OnIndexCompleted(object? sender, IndexCompletedEventArgs e)
     {
         Application.Current.Dispatcher.Invoke(() =>
         {
             //UpdateIndexCount();
+
+            // 视频阶段收尾：清空所有残留进度卡片（中止/异常路径的兜底）
+            if (ReferenceEquals(sender, _videoIndexService))
+            {
+                VideoIndexJobs.Clear();
+            }
 
             if (e.Errors.Count > 0)
             {
@@ -1412,6 +1458,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _videoIndexService.ProgressChanged -= OnIndexProgressChanged;
         _videoIndexService.IndexCompleted -= OnIndexCompleted;
         _videoIndexService.IndexUpdated -= OnIndexUpdated;
+        _videoIndexService.FileCompleted -= OnVideoFileCompleted;
 
         _performanceTimer?.Dispose();
         _updateIndexTimer?.Dispose();

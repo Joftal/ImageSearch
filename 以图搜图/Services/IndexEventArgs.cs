@@ -10,6 +10,9 @@ public class IndexProgressEventArgs : EventArgs
     public int ProcessedFiles { get; init; }
     public int TotalFiles { get; init; }
     public double ProgressPercentage => TotalFiles > 0 ? (double)ProcessedFiles / TotalFiles * 100 : 0;
+
+    /// <summary>该事件对应文件自身的进度（0~1），仅视频索引的逐帧事件填充，供并行任务各自的进度卡片使用</summary>
+    public double? FileProgressFraction { get; init; }
 }
 
 public class IndexCompletedEventArgs : EventArgs
