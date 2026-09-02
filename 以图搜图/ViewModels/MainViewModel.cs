@@ -1185,27 +1185,29 @@ public partial class MainViewModel : ObservableObject, IDisposable
             IndexProgressText = $"{e.ProcessedFiles:#,0} / {e.TotalFiles:#,0}";
             IndexProgressVisibility = Visibility.Visible;
 
+            // 视频文件事件：每路一张独立进度卡片。必须独立于 ProcessedFiles>0 门——视频进度单位是"视频秒"，
+            // (int)currentSeconds 在首秒（或整个 <1s 小视频）为 0，该事件不应被丢弃，否则短片段全程无卡片
+            if (!string.IsNullOrEmpty(e.Filename) && IsVideoFile(e.Filename))
+            {
+                var job = VideoIndexJobs.FirstOrDefault(j => j.FileName == e.Filename);
+                if (job == null)
+                {
+                    job = new VideoIndexJob { FileName = e.Filename };
+                    VideoIndexJobs.Add(job);
+                }
+
+                if (e.FileProgressFraction is { } frac)
+                {
+                    job.Percent = Math.Min(frac * 100, 100);
+                    job.PercentText = $"{frac:P0}";
+                }
+
+                ProcessingFilename = $"并行处理 {VideoIndexJobs.Count} 个视频（各视频进度见下方卡片）";
+            }
+
             if (e.ProcessedFiles > 0)
             {
-                // 并行视频：每路一张独立进度卡片，单个"正在处理"行改为聚合文案，不再轮流被各路覆盖
-                if (!string.IsNullOrEmpty(e.Filename) && IsVideoFile(e.Filename))
-                {
-                    var job = VideoIndexJobs.FirstOrDefault(j => j.FileName == e.Filename);
-                    if (job == null)
-                    {
-                        job = new VideoIndexJob { FileName = e.Filename };
-                        VideoIndexJobs.Add(job);
-                    }
-
-                    if (e.FileProgressFraction is { } frac)
-                    {
-                        job.Percent = Math.Min(frac * 100, 100);
-                        job.PercentText = $"{frac:P0}";
-                    }
-
-                    ProcessingFilename = $"并行处理 {VideoIndexJobs.Count} 个视频（各视频进度见下方卡片）";
-                }
-                else
+                if (string.IsNullOrEmpty(e.Filename) || !IsVideoFile(e.Filename))
                 {
                     ProcessingFilename = "正在处理：" + e.Filename;
                 }
