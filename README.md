@@ -20,6 +20,9 @@
 1. 如果电脑中安装有everything，软件会自动调取everything进行目录扫描，请确保要扫描的目录已经被everything索引，如果你想让软件不自动调取everything，把目录下的everything64.dll文件删掉即可
 2. 软件不支持部分区域的图片检索，只能做相似检索
 3. 相似度限定70是因为低于70的相似度肉眼看上去已经是完全不一样的图了
+4. GIF检索只在GIF库内比对，不会匹配静态图片；视频检索按1秒/帧采样比对，视频内局部画面检索依赖ORB深度搜索
+5. 便携模式：索引、配置等所有数据均保存在程序所在目录（临时文件在程序目录 temp\ 子目录），不写入其他盘；如需迁移直接整体拷贝程序文件夹
+6. 视频检索功能依赖 ffmpeg/ffprobe：因体积超过 GitHub 单文件限制未随源码分发，请自行下载（如 https://www.gyan.dev/ffmpeg/builds/ 的 release essentials 版）并将 ffmpeg.exe、ffprobe.exe 放入程序目录 tools\ 下；缺失时仅视频索引不可用，图片/GIF检索不受影响
 ## Star趋势
 
 <img src="https://starchart.cc/ldqk/ImageSearch.svg">

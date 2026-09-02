@@ -28,8 +28,9 @@ public static class FileExplorerHelper
             {
                 Marshal.ThrowExceptionForHR(SHOpenFolderAndSelectItems(pidlList, 0, IntPtr.Zero, 0));
             }
-            catch
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"打开资源管理器失败: {ex.Message}");
             }
             finally
             {

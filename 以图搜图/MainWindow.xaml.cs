@@ -43,7 +43,7 @@ public partial class MainWindow
         UpdateSpeedChart();
     }
 
-    private MainViewModel ViewModel => (MainViewModel)DataContext;
+    private MainViewModel ViewModel => (MainViewModel)DataContext!;
 
     private void UpdateSpeedChart()
     {
@@ -110,25 +110,17 @@ public partial class MainWindow
 
     private void TxtDirectory_Drop(object sender, DragEventArgs e)
     {
-        if (e.Data.GetDataPresent(DataFormats.FileDrop))
+        if (e.Data.GetData(DataFormats.FileDrop) is string[] files && files.Length > 0)
         {
-            var files = (string[])e.Data.GetData(DataFormats.FileDrop);
-            if (files.Length > 0)
-            {
-                ViewModel.DirectoryPath = files[0];
-            }
+            ViewModel.DirectoryPath = files[0];
         }
     }
 
     private void TxtPic_Drop(object sender, DragEventArgs e)
     {
-        if (e.Data.GetDataPresent(DataFormats.FileDrop))
+        if (e.Data.GetData(DataFormats.FileDrop) is string[] files && files.Length > 0)
         {
-            var files = (string[])e.Data.GetData(DataFormats.FileDrop);
-            if (files.Length > 0)
-            {
-                ViewModel.ImagePath = files[0];
-            }
+            ViewModel.ImagePath = files[0];
         }
     }
 
@@ -148,11 +140,7 @@ public partial class MainWindow
         {
             if (File.Exists(ViewModel.SelectedResult.路径))
             {
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = ViewModel.SelectedResult.路径,
-                    UseShellExecute = true
-                });
+                OpenFile(ViewModel.SelectedResult.路径);
             }
             else
             {
@@ -165,11 +153,7 @@ public partial class MainWindow
     {
         if (!string.IsNullOrEmpty(ViewModel.SourceImagePath) && File.Exists(ViewModel.SourceImagePath))
         {
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = ViewModel.SourceImagePath,
-                UseShellExecute = true
-            });
+            OpenFile(ViewModel.SourceImagePath);
         }
     }
 
@@ -177,28 +161,39 @@ public partial class MainWindow
     {
         if (ViewModel.SelectedResult != null && File.Exists(ViewModel.SelectedResult.路径))
         {
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = ViewModel.SelectedResult.路径,
-                UseShellExecute = true
-            });
+            OpenFile(ViewModel.SelectedResult.路径);
         }
     }
 
     private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
     {
-        Process.Start(new ProcessStartInfo
-        {
-            FileName = e.Uri.AbsoluteUri,
-            UseShellExecute = true
-        });
+        OpenFile(e.Uri.AbsoluteUri);
         e.Handled = true;
+    }
+
+    private static void OpenFile(string path)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = path,
+                UseShellExecute = true
+            })?.Dispose();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"无法打开文件：{ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 
     protected override void OnKeyDown(KeyEventArgs e)
     {
         base.OnKeyDown(e);
-        if (e.Key == Key.V && Keyboard.Modifiers == ModifierKeys.Control)
+        // 如果焦点在 TextBox 上或搜索不可用，不拦截 Ctrl+V
+        if (e.Key == Key.V && Keyboard.Modifiers == ModifierKeys.Control
+            && e.OriginalSource is not System.Windows.Controls.TextBox
+            && ViewModel.IsSearchEnabled)
         {
             ViewModel.SearchFromClipboardCommand.Execute(null);
         }

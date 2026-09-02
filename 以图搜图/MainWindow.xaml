@@ -28,8 +28,6 @@
 
         <!-- 转换器 -->
         <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
-        <converters:ProgressWidthConverter x:Key="ProgressWidthConverter" />
-        <converters:SpeedHistoryToPathConverter x:Key="SpeedHistoryToPathConverter" />
         <converters:ImagePathToBitmapConverter x:Key="ImagePathToBitmapConverter" />
         <converters:EnumToDisplayNameConverter x:Key="EnumToDisplayNameConverter" />
         <converters:ServerStatusColorConverter x:Key="BoolToColorConverter" />
@@ -237,8 +235,6 @@
                  Value="True">
                     <Setter Property="BorderBrush"
                   Value="#007ACC" />
-                    <Setter Property="BorderThickness"
-                  Value="2" />
                 </Trigger>
                 <Trigger Property="IsEnabled"
                  Value="False">
@@ -282,8 +278,6 @@
                  Value="True">
                     <Setter Property="BorderBrush"
                   Value="#007ACC" />
-                    <Setter Property="BorderThickness"
-                  Value="2" />
                 </Trigger>
                 <Trigger Property="IsEnabled"
                  Value="False">
@@ -598,6 +592,7 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
                     <TextBlock Grid.Column="0"
@@ -626,8 +621,16 @@
                   Height="36"
                   Margin="0,0,15,0" />
 
+                    <Button Grid.Column="4"
+                  Content="🗑 清除索引"
+                  Style="{StaticResource SecondaryButtonStyle}"
+                  Command="{Binding ClearIndexCommand}"
+                  Width="110"
+                  Height="36"
+                  Margin="0,0,15,0" />
+
                     <!-- 移除无效索引选项 - 与按钮并排 -->
-                    <CheckBox Grid.Column="4"
+                    <CheckBox Grid.Column="5"
                     Content="移除无效索引"
                     IsChecked="{Binding RemoveInvalidIndex}"
                     Visibility="{Binding ShowRemoveInvalidIndex}"
@@ -689,11 +692,12 @@
                                 <Grid>
                                     <!-- 背景网格线 -->
                                     <Canvas>
-                                        <Line X1="0" Y1="20" X2="1000" Y2="20"
+                                        <!-- X2 使用大值，由父容器 ClipToBounds 裁剪 -->
+                                        <Line X1="0" Y1="20" X2="10000" Y2="20"
                           Stroke="#E8E8E8" StrokeThickness="1" StrokeDashArray="2,2" />
-                                        <Line X1="0" Y1="40" X2="1000" Y2="40"
+                                        <Line X1="0" Y1="40" X2="10000" Y2="40"
                           Stroke="#E8E8E8" StrokeThickness="1" StrokeDashArray="2,2" />
-                                        <Line X1="0" Y1="60" X2="1000" Y2="60"
+                                        <Line X1="0" Y1="60" X2="10000" Y2="60"
                           Stroke="#E8E8E8" StrokeThickness="1" StrokeDashArray="2,2" />
                                     </Canvas>
 
@@ -994,7 +998,7 @@
                     RowStyle="{StaticResource ModernDataGridRowStyle}"
                     AutoGenerateColumns="False"
                     IsReadOnly="True"
-                    SelectionMode="Extended"
+                    SelectionMode="Single"
                     CanUserAddRows="False"
                     KeyUp="DataGrid_KeyUp"
                     MouseDoubleClick="DataGrid_MouseDoubleClick"
@@ -1026,6 +1030,12 @@
                             <DataGridTextColumn Header="匹配算法"
                                   Binding="{Binding 匹配算法}"
                                   Width="100" />
+                            <DataGridTextColumn Header="类型"
+                                  Binding="{Binding 媒体类型}"
+                                  Width="60" />
+                            <DataGridTextColumn Header="时间戳"
+                                  Binding="{Binding 时间戳}"
+                                  Width="80" />
                         </DataGrid.Columns>
                         <DataGrid.ContextMenu>
                             <ContextMenu>

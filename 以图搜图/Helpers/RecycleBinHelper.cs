@@ -37,9 +37,13 @@ public class RecycleBinHelper
         if (!File.Exists(path) && !Directory.Exists(path))
             throw new FileNotFoundException("Path not found: " + path);
 
+        // SHFileOperation 不支持 \\?\ 长路径前缀，直接使用规范化路径
+        // 超过 MAX_PATH 的路径将由 SHFileOperation 返回错误
+        var fullPath = Path.GetFullPath(path);
+
         SHFILEOPSTRUCT fileOp = new SHFILEOPSTRUCT();
         fileOp.wFunc = FO_DELETE;
-        fileOp.pFrom = path + '\0' + '\0'; // 必须双null结尾
+        fileOp.pFrom = fullPath + '\0' + '\0'; // 必须双null结尾
         fileOp.fFlags = (ushort)(FOF_ALLOWUNDO | FOF_NOCONFIRMATION);
 
         int result = SHFileOperation(ref fileOp);

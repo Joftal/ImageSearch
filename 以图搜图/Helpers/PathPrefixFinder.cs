@@ -140,8 +140,15 @@ public static class PathPrefixFinder
 
         var segments = new List<string>();
 
+        // 处理UNC路径 (\\server\share)
+        if (path.Length >= 2 && path[0] == '\\' && path[1] == '\\')
+        {
+            segments.Add(@"\\"); // UNC 前缀标记
+            var remaining = path.AsSpan(2);
+            AddSegmentsFromSpan(segments, remaining);
+        }
         // 处理Windows路径 (C:/)
-        if (path.Length >= 2 && char.IsLetter(path[0]) && path[1] == ':')
+        else if (path.Length >= 2 && char.IsLetter(path[0]) && path[1] == ':')
         {
             segments.Add(path[..2]); // "C:"
             if (path.Length > 3)
@@ -205,6 +212,19 @@ public static class PathPrefixFinder
     private static string BuildPathFromSegmentsSpan(ReadOnlySpan<string> segments)
     {
         if (segments.Length == 0) return string.Empty;
+
+        // UNC路径 (\\server\share)
+        if (segments[0] == @"\\")
+        {
+            if (segments.Length == 1)
+            {
+                return @"\\";
+            }
+
+            // segments = ["\\", "server", "share", ...] → \\server\share\...
+            var arr = segments.ToArray();
+            return @"\\" + string.Join("\\", arr, 1, arr.Length - 1);
+        }
 
         // Windows路径
         if (segments[0].Length == 2 && char.IsLetter(segments[0][0]) && segments[0][1] == ':')

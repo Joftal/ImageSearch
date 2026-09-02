@@ -7,23 +7,62 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "以图搜图", "以图搜�
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Straper", "Straper\Straper.csproj", "{5C17B0E6-08E5-4833-B2B8-C03F6437275F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageSearch.Tests", "tests\ImageSearch.Tests\ImageSearch.Tests.csproj", "{3A947D8A-4AB6-460C-A11B-B19B7F02825E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
 		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{03CE1696-1839-4019-B580-CA4CCE415563}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{03CE1696-1839-4019-B580-CA4CCE415563}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{03CE1696-1839-4019-B580-CA4CCE415563}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{03CE1696-1839-4019-B580-CA4CCE415563}.Debug|x64.Build.0 = Debug|Any CPU
+		{03CE1696-1839-4019-B580-CA4CCE415563}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{03CE1696-1839-4019-B580-CA4CCE415563}.Debug|x86.Build.0 = Debug|Any CPU
 		{03CE1696-1839-4019-B580-CA4CCE415563}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{03CE1696-1839-4019-B580-CA4CCE415563}.Release|Any CPU.Build.0 = Release|Any CPU
+		{03CE1696-1839-4019-B580-CA4CCE415563}.Release|x64.ActiveCfg = Release|Any CPU
+		{03CE1696-1839-4019-B580-CA4CCE415563}.Release|x64.Build.0 = Release|Any CPU
+		{03CE1696-1839-4019-B580-CA4CCE415563}.Release|x86.ActiveCfg = Release|Any CPU
+		{03CE1696-1839-4019-B580-CA4CCE415563}.Release|x86.Build.0 = Release|Any CPU
 		{5C17B0E6-08E5-4833-B2B8-C03F6437275F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5C17B0E6-08E5-4833-B2B8-C03F6437275F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C17B0E6-08E5-4833-B2B8-C03F6437275F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5C17B0E6-08E5-4833-B2B8-C03F6437275F}.Debug|x64.Build.0 = Debug|Any CPU
+		{5C17B0E6-08E5-4833-B2B8-C03F6437275F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5C17B0E6-08E5-4833-B2B8-C03F6437275F}.Debug|x86.Build.0 = Debug|Any CPU
 		{5C17B0E6-08E5-4833-B2B8-C03F6437275F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5C17B0E6-08E5-4833-B2B8-C03F6437275F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C17B0E6-08E5-4833-B2B8-C03F6437275F}.Release|x64.ActiveCfg = Release|Any CPU
+		{5C17B0E6-08E5-4833-B2B8-C03F6437275F}.Release|x64.Build.0 = Release|Any CPU
+		{5C17B0E6-08E5-4833-B2B8-C03F6437275F}.Release|x86.ActiveCfg = Release|Any CPU
+		{5C17B0E6-08E5-4833-B2B8-C03F6437275F}.Release|x86.Build.0 = Release|Any CPU
+		{3A947D8A-4AB6-460C-A11B-B19B7F02825E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A947D8A-4AB6-460C-A11B-B19B7F02825E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A947D8A-4AB6-460C-A11B-B19B7F02825E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3A947D8A-4AB6-460C-A11B-B19B7F02825E}.Debug|x64.Build.0 = Debug|Any CPU
+		{3A947D8A-4AB6-460C-A11B-B19B7F02825E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3A947D8A-4AB6-460C-A11B-B19B7F02825E}.Debug|x86.Build.0 = Debug|Any CPU
+		{3A947D8A-4AB6-460C-A11B-B19B7F02825E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A947D8A-4AB6-460C-A11B-B19B7F02825E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A947D8A-4AB6-460C-A11B-B19B7F02825E}.Release|x64.ActiveCfg = Release|Any CPU
+		{3A947D8A-4AB6-460C-A11B-B19B7F02825E}.Release|x64.Build.0 = Release|Any CPU
+		{3A947D8A-4AB6-460C-A11B-B19B7F02825E}.Release|x86.ActiveCfg = Release|Any CPU
+		{3A947D8A-4AB6-460C-A11B-B19B7F02825E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3A947D8A-4AB6-460C-A11B-B19B7F02825E} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {529F36F8-5C79-4675-B553-A2F78A4213D1}

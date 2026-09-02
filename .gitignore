@@ -276,3 +276,16 @@ Test
 /src/Masuit.MyBlogs.Core/App_Data/OneDrive.template.db
 /src/Masuit.MyBlogs.Core/App_Data/OneDrive.db
 /src/Masuit.MyBlogs.Core/.config
+# ==== 本项目补充 ====
+# ffmpeg/ffprobe 体积超过 GitHub 100MB 单文件限制，不随源码分发（使用时请下载放入 tools/）
+以图搜图/tools/
+# 便携模式运行时产生的数据与临时文件（只应存在于 bin/publish 输出目录）
+以图搜图/temp/
+index.json
+frame_index.json
+video_index.json
+video_orb_index.bin
+# 个人 IDE 配置
+.vscode/
+# 审查报告为本地工作文档，不入库
+CODE_REVIEW.md
