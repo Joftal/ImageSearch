@@ -342,7 +342,9 @@ public partial class MainViewModel : ObservableObject, IDisposable
         ProcessStatus = "索引已清除";
     }
 
-    [RelayCommand]
+    // AsyncRelayCommand 默认运行中 CanExecute=false → 按钮被强制禁用且 Execute 直接短路，
+    // 方法内的"停止"分支永远不可达，必须允许并发执行才能点出停止
+    [RelayCommand(AllowConcurrentExecutions = true)]
     private async Task UpdateIndex()
     {
         if (_indexService.IsIndexing || _videoIndexService.IsIndexing)
@@ -354,6 +356,13 @@ public partial class MainViewModel : ObservableObject, IDisposable
             //MessageBox.Show(Application.Current.MainWindow!, "已发送停止请求，请等待完成...", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
             return;
         }
+
+        // 允许并发执行后需防连击重复启动：服务的 IsIndexing 置位发生在后台 Task 内，存在时间窗
+        if (_updateToggling)
+        {
+            return;
+        }
+        _updateToggling = true;
 
         // 立即更新 UI 显示
         OnIndexProgressChanged(this, new IndexProgressEventArgs
@@ -403,6 +412,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
             }
             finally
             {
+                _updateToggling = false;
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     UpdateIndexButtonText = "🔄 更新索引";
@@ -412,6 +422,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
             }
         });
     }
+
+    private volatile bool _updateToggling;
 
     [RelayCommand]
     private async Task Search()

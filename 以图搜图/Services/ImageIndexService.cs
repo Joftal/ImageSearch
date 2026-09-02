@@ -381,6 +381,14 @@ public sealed class ImageIndexService : Disposable
 
                 Interlocked.Add(ref queuedBytes, -item.Length);
 
+                if (!IsIndexing)
+                {
+                    // 停止请求：队列余量直接丢弃（下次索引时未入库文件会增量补齐），
+                    // 不再逐个解码，否则机械盘大预读（可达数 GB）会让"停止"等几分钟才生效
+                    item.Stream?.Dispose();
+                    return;
+                }
+
                 try
                 {
                     if (item.Path.EndsWith(".gif", StringComparison.CurrentCultureIgnoreCase))
