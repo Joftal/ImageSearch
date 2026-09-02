@@ -556,6 +556,22 @@ public partial class MainViewModel : ObservableObject, IDisposable
     }
 
     [RelayCommand]
+    private void PlayResult()
+    {
+        if (SelectedResult == null || !File.Exists(SelectedResult.路径)) return;
+
+        if (SelectedResult.媒体类型 == "视频")
+        {
+            // 视频：带命中时间戳定位播放（探测不到播放器时内部回退系统默认打开）
+            PlayerLauncher.OpenAtPosition(SelectedResult.路径, SelectedResult.命中时间戳秒数);
+        }
+        else
+        {
+            Process.Start(new ProcessStartInfo { FileName = SelectedResult.路径, UseShellExecute = true })?.Dispose();
+        }
+    }
+
+    [RelayCommand]
     private void Delete()
     {
         if (SelectedResult == null) return;

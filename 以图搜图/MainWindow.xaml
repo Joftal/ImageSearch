@@ -1039,6 +1039,8 @@
                         </DataGrid.Columns>
                         <DataGrid.ContextMenu>
                             <ContextMenu>
+                                <MenuItem Header="▶ 打开（视频跳到命中处）"
+                          Command="{Binding PlayResultCommand}" />
                                 <MenuItem Header="📂 打开所在文件夹 (Ctrl+O)"
                           Command="{Binding OpenFolderCommand}" />
                                 <MenuItem Header="🗑️ 删除 (Delete)"

@@ -140,12 +140,25 @@ public partial class MainWindow
         {
             if (File.Exists(ViewModel.SelectedResult.路径))
             {
-                OpenFile(ViewModel.SelectedResult.路径);
+                OpenSearchResult(ViewModel.SelectedResult);
             }
             else
             {
                 MessageBox.Show(this, "文件不存在，可能发生了移动", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+    }
+
+    /// <summary>打开结果文件：视频结果带命中时间戳经 PlayerLauncher 定位播放，其余按系统默认打开。</summary>
+    private static void OpenSearchResult(Models.SearchResult result)
+    {
+        if (result.媒体类型 == "视频")
+        {
+            PlayerLauncher.OpenAtPosition(result.路径, result.命中时间戳秒数);
+        }
+        else
+        {
+            OpenFile(result.路径);
         }
     }
 
@@ -161,7 +174,7 @@ public partial class MainWindow
     {
         if (ViewModel.SelectedResult != null && File.Exists(ViewModel.SelectedResult.路径))
         {
-            OpenFile(ViewModel.SelectedResult.路径);
+            OpenSearchResult(ViewModel.SelectedResult);
         }
     }
 
