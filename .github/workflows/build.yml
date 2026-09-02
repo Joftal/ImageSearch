@@ -5,6 +5,16 @@ on:
     branches: [master]
     tags: ['v*']
   workflow_dispatch:
+    inputs:
+      version:
+        description: '发布版本号（如 1.0.0；留空则只构建出 artifact，不发 Release）'
+        required: false
+        type: string
+      prerelease:
+        description: '标记为预发布（Pre-release）'
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -19,6 +29,22 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
+
+      # 解析版本号：tag 推送取 tag 名；手动触发取输入；校验语义化格式 X.Y.Z
+      - name: Resolve version
+        id: ver
+        shell: pwsh
+        run: |
+          $v = ""
+          if ("${{ github.ref_type }}" -eq "tag") { $v = "${{ github.ref_name }}" -replace '^v','' }
+          else { $v = "${{ inputs.version }}".Trim() }
+          if ($v -ne "" -and $v -notmatch '^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$') {
+            Write-Error "版本号格式不合法: '$v'，应为 X.Y.Z（如 1.0.0 或 1.0.0-beta.1）"
+            exit 1
+          }
+          echo "version=$v" >> $env:GITHUB_OUTPUT
+          echo "tag=v$v" >> $env:GITHUB_OUTPUT
+          echo "hasVersion=$([bool]($v -ne ''))" >> $env:GITHUB_OUTPUT
 
       # ffmpeg/ffprobe 不随源码分发（>100MB），CI 里拉官方 essentials 包；缓存避免每次重下
       - name: Cache ffmpeg
@@ -54,21 +80,30 @@ jobs:
       - name: Publish (framework-dependent win-x64)
         run: dotnet publish 以图搜图/以图搜图.csproj -c Release -r win-x64 --self-contained false -o publish
 
+      # 有版本号时 zip 带版本号，否则用无版本号通用名
       - name: Package zip
+        id: pkg
         shell: pwsh
-        run: Compress-Archive -Path publish/* -DestinationPath ImageSearch-win-x64.zip -Force
+        run: |
+          $v = "${{ steps.ver.outputs.version }}"
+          $name = if ($v -ne "") { "ImageSearch-win-x64-v$v.zip" } else { "ImageSearch-win-x64.zip" }
+          Compress-Archive -Path publish/* -DestinationPath $name -Force
+          echo "zip=$name" >> $env:GITHUB_OUTPUT
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ImageSearch-win-x64
-          path: ImageSearch-win-x64.zip
+          name: ${{ steps.pkg.outputs.zip }}
+          path: ${{ steps.pkg.outputs.zip }}
           retention-days: 30
 
-      # 推 v* 标签时自动发布 Release 并附带 zip
-      - name: Create Release (on tag)
-        if: startsWith(github.ref, 'refs/tags/v')
+      # 发版条件：v* 标签推送，或手动触发且填写了版本号（自动创建 tag）
+      - name: Create Release
+        if: steps.ver.outputs.hasVersion == 'true'
         uses: softprops/action-gh-release@v2
         with:
-          files: ImageSearch-win-x64.zip
+          tag_name: ${{ steps.ver.outputs.tag }}
+          name: ${{ steps.ver.outputs.tag }}
+          files: ${{ steps.pkg.outputs.zip }}
           generate_release_notes: true
+          prerelease: ${{ inputs.prerelease == true }}
