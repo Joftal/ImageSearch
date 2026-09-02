@@ -349,6 +349,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     {
         if (_indexService.IsIndexing || _videoIndexService.IsIndexing)
         {
+            _indexStopRequested = true;
             _indexService.StopIndexing();
             _videoIndexService.StopIndexing();
             UpdateIndexButtonText = "🔄 更新索引";
@@ -363,6 +364,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
             return;
         }
         _updateToggling = true;
+        _indexStopRequested = false;
 
         // 立即更新 UI 显示
         OnIndexProgressChanged(this, new IndexProgressEventArgs
@@ -401,14 +403,19 @@ public partial class MainViewModel : ObservableObject, IDisposable
                     Application.Current.Dispatcher.Invoke(() => MessageBox.Show(ex.Message));
                 }
 
-                // 图片索引完成后顺序执行视频索引（共享进度条与停止状态）
-                var videoFiles = allFiles.Where(IsVideoFile).ToArray();
-                if (RemoveInvalidIndex)
+                // 停止请求后不再进入视频阶段：服务的 IsIndexing 在 UpdateIndexAsync 入口会被重新置位，
+                // 仅靠它无法区分"正常完成"与"被停止"，必须有显式的停止意向标志
+                if (!_indexStopRequested)
                 {
-                    _videoIndexService.RemoveInvalidIndexes(videoFiles);
-                }
+                    // 图片索引完成后顺序执行视频索引（共享进度条与停止状态）
+                    var videoFiles = allFiles.Where(IsVideoFile).ToArray();
+                    if (RemoveInvalidIndex)
+                    {
+                        _videoIndexService.RemoveInvalidIndexes(videoFiles);
+                    }
 
-                await _videoIndexService.UpdateIndexAsync(videoFiles);
+                    await _videoIndexService.UpdateIndexAsync(videoFiles);
+                }
             }
             finally
             {
@@ -424,6 +431,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     }
 
     private volatile bool _updateToggling;
+    private volatile bool _indexStopRequested;
 
     [RelayCommand]
     private async Task Search()
