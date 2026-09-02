@@ -148,9 +148,11 @@ public static class PlayerLauncher
         };
     }
 
+    /// <summary>格式化为 PotPlayer/MPC 要求的 hh:mm:ss.mmm 三段式（mm:ss 两段式会被播放器静默忽略）</summary>
     private static string ToHms(double seconds)
     {
         var ts = TimeSpan.FromSeconds(seconds);
-        return ts.ToString(ts.TotalHours >= 1 ? @"hh\:mm\:ss" : @"mm\:ss");
+        // 不能用 TimeSpan 的 hh 占位符（上限23小时），长视频手工拼小时数
+        return FormattableString.Invariant($"{(int)ts.TotalHours:00}:{ts.Minutes:00}:{ts.Seconds:00}.{ts.Milliseconds:000}");
     }
 }
