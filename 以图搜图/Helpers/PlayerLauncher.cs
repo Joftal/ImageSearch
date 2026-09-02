@@ -129,12 +129,13 @@ public static class PlayerLauncher
 
     private static string BuildArgs(PlayerConfig player, string file, double seconds)
     {
-        // 用户自定义参数模板优先：{file}=视频路径 {seconds}=秒（不变文化，避免逗号小数区域出错）
+        // 用户自定义参数模板优先：{file}=视频路径 {seconds}=秒 {hms}=hh:mm:ss（不变文化，避免逗号小数区域出错）
         if (!string.IsNullOrEmpty(player.ArgsTemplate))
         {
             return player.ArgsTemplate
                 .Replace("{file}", file)
-                .Replace("{seconds}", seconds.ToString("F3", CultureInfo.InvariantCulture));
+                .Replace("{seconds}", seconds.ToString("F3", CultureInfo.InvariantCulture))
+                .Replace("{hms}", ToHms(seconds));
         }
 
         return player.Type switch
